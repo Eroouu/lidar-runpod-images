@@ -1,0 +1,21 @@
+FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Системные зависимости (open3d/flash-attn/сборки)
+RUN apt-get update && apt-get install -y \
+    git wget curl unzip ca-certificates \
+    build-essential cmake ninja-build \
+    libgl1 libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# Кладём requirements в образ и ставим
+COPY requirements.txt /tmp/requirements.txt
+
+# Важно: flash-attn иногда капризный — ставим без build isolation
+RUN pip install -r /tmp/requirements.txt
+
+WORKDIR /workspace
+CMD ["bash", "-lc", "sleep infinity"]
